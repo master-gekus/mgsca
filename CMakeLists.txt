@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(mgsca LANGUAGES CXX)
 
 find_package(Qt5 5.8 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(OpenSSL 1.0 REQUIRED)
 
 add_executable(mgsca
   main.cpp
@@ -28,4 +29,6 @@ target_link_libraries(mgsca PRIVATE
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
+  OpenSSL::SSL
+  OpenSSL::Crypto
   )
