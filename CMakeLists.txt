@@ -5,6 +5,12 @@ project(mgsca LANGUAGES CXX)
 find_package(Qt5 5.8 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(OpenSSL 1.0 REQUIRED)
 
+option(YAML_CPP_BUILD_TESTS "" OFF)
+option(YAML_CPP_BUILD_TOOLS "" OFF)
+option(YAML_CPP_BUILD_CONTRIB "" OFF)
+option(YAML_CPP_INSTALL "" OFF)
+add_subdirectory(yaml-cpp)
+
 add_executable(mgsca
   main.cpp
   main_window.cpp
@@ -31,4 +37,5 @@ target_link_libraries(mgsca PRIVATE
   Qt5::Widgets
   OpenSSL::SSL
   OpenSSL::Crypto
+  yaml-cpp
   )
