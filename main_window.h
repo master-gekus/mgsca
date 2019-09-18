@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QFileInfo>
+
+#include "document.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,21 +15,28 @@ class MainWindow : public QMainWindow
 
 public:
   MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
+  ~MainWindow() override;
+
+protected:
+  void closeEvent(QCloseEvent *event) override;
 
 private slots:
   void on_actionOpen_triggered();
   void on_actionSave_triggered();
   void on_actionSaveAs_triggered();
-  void on_actionQuit_triggered();
+
+  void open(QString file_name);
 
 private:
+  QString current_file_name() const;
   void update_ui();
+  void save(bool ask_name, bool close_on_success);
 
 private:
   Ui::MainWindow *ui;
 
 private:
-  QFileInfo current_file_;
+  QString current_file_;
+  SCADocument current_ca_;
 };
 #endif // MAINWINDOW_H

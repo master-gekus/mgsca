@@ -16,6 +16,8 @@ add_executable(mgsca
   main_window.cpp
   main_window.h
   main_window.ui
+  document.cpp
+  document.h
   )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
