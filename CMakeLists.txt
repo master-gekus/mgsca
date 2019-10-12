@@ -2,14 +2,26 @@ cmake_minimum_required(VERSION 3.5)
 
 project(mgsca LANGUAGES CXX)
 
-find_package(Qt5 5.8 COMPONENTS Core Gui Widgets REQUIRED)
-find_package(OpenSSL 1.0 REQUIRED)
+# Boring SSL
+add_compile_definitions(BORINGSSL_NO_STATIC_INITIALIZER)
+add_subdirectory(boringssl)
+add_library(boringssl INTERFACE)
+target_link_libraries(boringssl INTERFACE
+  ssl
+  crypto
+  )
+target_include_directories(boringssl INTERFACE
+  boringssl/include
+  )
 
+# yaml-cpp
 option(YAML_CPP_BUILD_TESTS "" OFF)
 option(YAML_CPP_BUILD_TOOLS "" OFF)
 option(YAML_CPP_BUILD_CONTRIB "" OFF)
 option(YAML_CPP_INSTALL "" OFF)
 add_subdirectory(yaml-cpp)
+
+find_package(Qt5 5.8 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_executable(mgsca
   main.cpp
@@ -37,7 +49,6 @@ target_link_libraries(mgsca PRIVATE
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
-  OpenSSL::SSL
-  OpenSSL::Crypto
+  boringssl
   yaml-cpp
   )

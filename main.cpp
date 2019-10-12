@@ -2,8 +2,12 @@
 
 #include <QApplication>
 
+#include <openssl/crypto.h>
+
 int main(int argc, char *argv[])
 {
+  ::CRYPTO_library_init();
+
   QApplication a(argc, argv);
 
   a.setOrganizationName(QStringLiteral("Master Gekus"));
