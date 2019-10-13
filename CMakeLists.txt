@@ -28,6 +28,9 @@ add_executable(mgsca
   main_window.cpp
   main_window.h
   main_window.ui
+  idle_handler.cpp
+  idle_handler.h
+  idle_handler_p.h
   document.cpp
   document.h
   certificate_item.cpp

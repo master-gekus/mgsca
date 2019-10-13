@@ -13,9 +13,10 @@
 #define GEOMETRY_KEY QStringLiteral("Geometry")
 #define STATE_KEY QStringLiteral("State")
 
-MainWindow::MainWindow(QWidget *parent)
-  : QMainWindow(parent)
-  , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) :
+  QMainWindow{parent},
+  ui{new Ui::MainWindow},
+  idle_handler_{this}
 {
   ui->setupUi(this);
 
@@ -31,8 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->actionQuit->setShortcut(QKeySequence::Quit);
 
   connect(ui->actionQuit, SIGNAL(triggered()), SLOT(close()));
-
-  update_ui();
+  connect(&idle_handler_, SIGNAL(idle()), SLOT(idle_update_ui()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -55,7 +55,7 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
-void MainWindow::update_ui()
+void MainWindow::idle_update_ui()
 {
   setWindowTitle(WINDOW_TITLE.arg(current_ca_.display_name(),
                                   current_ca_.modified() ? QStringLiteral("*") : QStringLiteral(""),
@@ -65,7 +65,6 @@ void MainWindow::update_ui()
 void MainWindow::set_document(SCADocument&& newca)
 {
   current_ca_ = ::std::move(newca);
-  update_ui();
 }
 
 bool MainWindow::check_modified()
@@ -114,7 +113,6 @@ bool MainWindow::save(bool ask_name)
     return false;
   }
 
-  update_ui();
   return true;
 }
 
@@ -167,5 +165,4 @@ void MainWindow::on_actionSaveAs_triggered()
 void MainWindow::on_actionCertNew_triggered()
 {
   current_ca_.set_modified();
-  update_ui();
 }

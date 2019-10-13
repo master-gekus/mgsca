@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "idle_handler.h"
 #include "document.h"
 
 QT_BEGIN_NAMESPACE
@@ -28,8 +29,9 @@ private slots:
 
   void on_actionCertNew_triggered();
 
+  void idle_update_ui();
+
 private:
-  void update_ui();
   void set_document(SCADocument&& newca);
   bool check_modified();
   bool open(QString file_name);
@@ -39,6 +41,7 @@ private:
   Ui::MainWindow *ui;
 
 private:
+  IdleHandler idle_handler_;
   SCADocument current_ca_;
 };
 #endif // MAINWINDOW_H
