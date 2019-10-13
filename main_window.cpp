@@ -6,10 +6,9 @@
 #include <QSettings>
 #include <QCloseEvent>
 #include <QFileDialog>
-#include <QFileInfo>
 #include <QMessageBox>
 
-#define WINDOW_TITLE QStringLiteral("%1 :: %2")
+#define WINDOW_TITLE QStringLiteral("%1%2 :: %3")
 #define MAIN_WINDOW_GROUP QStringLiteral("Main Window")
 #define GEOMETRY_KEY QStringLiteral("Geometry")
 #define STATE_KEY QStringLiteral("State")
@@ -25,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
   restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
   restoreState(settings.value(STATE_KEY).toByteArray());
 
+  ui->actionNew->setShortcut(QKeySequence::New);
   ui->actionOpen->setShortcut(QKeySequence::Open);
   ui->actionSave->setShortcut(QKeySequence::Save);
   ui->actionSaveAs->setShortcut(QKeySequence::SaveAs);
@@ -37,25 +37,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  if (current_ca_.modified()) {
-    switch (QMessageBox::question(this, QApplication::applicationName(),
-                                  QStringLiteral("File \"%1\" is not saved.\nSave file?").arg(current_file_name()),
-                                  QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No
-                                  | QMessageBox::StandardButton::Cancel)) {
-    case QMessageBox::Yes:
-      event->ignore();
-      save(false, true);
-      break;
-
-    case QMessageBox::No:
-      event->accept();
-      break;
-
-    default:
-      event->ignore();
-      break;
-    }
-  } else {
+  if (!check_modified()) {
+    event->ignore();
+  }
+  else {
     event->accept();
   }
 }
@@ -70,63 +55,97 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
-inline QString MainWindow::current_file_name() const
-{
-  return current_file_.isEmpty() ? QStringLiteral("<untitled>") : QFileInfo(current_file_).completeBaseName();
-}
-
 void MainWindow::update_ui()
 {
-  setWindowTitle(WINDOW_TITLE.arg(current_file_name(), QApplication::applicationName()));
+  setWindowTitle(WINDOW_TITLE.arg(current_ca_.display_name(),
+                                  current_ca_.modified() ? QStringLiteral("*") : QStringLiteral(""),
+                                  QApplication::applicationName()));
 }
 
-void MainWindow::save(bool ask_name, bool close_on_success)
+void MainWindow::set_document(SCADocument&& newca)
 {
-  QString name{".sca"};
-  if (current_file_.isEmpty()) {
-    ask_name = true;
+  current_ca_ = ::std::move(newca);
+  update_ui();
+}
+
+bool MainWindow::check_modified()
+{
+  if (current_ca_.modified()) {
+    switch (QMessageBox::question(this, QApplication::applicationName(),
+                                  QStringLiteral("File \"%1\" is not saved.\nSave file?").arg(current_ca_.display_name()),
+                                  QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No
+                                  | QMessageBox::StandardButton::Cancel)) {
+    case QMessageBox::Yes:
+      if (!save(false)) {
+        return false;
+      }
+      break;
+
+    case QMessageBox::No:
+      return true;
+
+    default:
+      return false;
+    }
   }
-  else {
-    name = QFileInfo{current_file_}.canonicalFilePath();
+
+  return (!current_ca_.modified());
+}
+
+bool MainWindow::save(bool ask_name)
+{
+  QString file_name{current_ca_.file_name()};
+  if (file_name.isEmpty()) {
+    file_name = QStringLiteral(".sca");
+    ask_name = true;
   }
 
   if (ask_name) {
-    name = QFileDialog::getSaveFileName(this, QStringLiteral("Save SCA database"), name,
+    file_name = QFileDialog::getSaveFileName(this, QStringLiteral("Save SCA database"), file_name,
                                         QStringLiteral("SCA Databases (*.sca);;All files (*.*)"));
-    if (name.isEmpty()) {
-      return;
+    if (file_name.isEmpty()) {
+      return false;
     }
   }
 
-  if (current_ca_.save(this, name)) {
-    current_file_ = name;
-    update_ui();
-    if (close_on_success) {
-      QMetaObject::invokeMethod(this, "close", Qt::QueuedConnection);
-    }
+  if (!current_ca_.save(file_name)) {
+    QMessageBox::critical(this, QApplication::applicationName(),
+                          QStringLiteral("Error while saving file.\n: %1").arg(current_ca_.error_string()));
+    return false;
   }
+
+  update_ui();
+  return true;
 }
 
-void MainWindow::open(QString file_name)
+bool MainWindow::open(QString file_name)
 {
-  QFileInfo fi{file_name};
-  if (!fi.exists()) {
-    QMessageBox::critical(this, QApplication::applicationName(), QStringLiteral("\"%1\": File not found").arg(file_name));
-    return;
-  }
-
   SCADocument newca;
-  if (!newca.load(this, fi.canonicalFilePath())) {
+  if (!newca.load(file_name)) {
+    QMessageBox::critical(this, QApplication::applicationName(),
+                          QStringLiteral("Error open file.\n %1").arg(newca.error_string()));
+    return false;
+  }
+
+  set_document(::std::move(newca));
+  return true;
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+  if (!check_modified()) {
     return;
   }
 
-  current_ca_ = ::std::move(newca);
-  current_file_ = fi.canonicalFilePath();
-  update_ui();
+  set_document(SCADocument{});
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
+  if (!check_modified()) {
+    return;
+  }
+
   QString name = QFileDialog::getOpenFileName(this, QStringLiteral("Open SCA database"), QString{},
                                               QStringLiteral("SCA Databases (*.sca);;All files (*.*)"));
   if (name.isEmpty()) {
@@ -137,10 +156,16 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-  save(false, false);
+  save(false);
 }
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-  save(true, false);
+  save(true);
+}
+
+void MainWindow::on_actionCertNew_triggered()
+{
+  current_ca_.set_modified();
+  update_ui();
 }

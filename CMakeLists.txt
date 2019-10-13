@@ -30,6 +30,8 @@ add_executable(mgsca
   main_window.ui
   document.cpp
   document.h
+  certificate_item.cpp
+  certificate_item.h
   )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

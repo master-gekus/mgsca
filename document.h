@@ -1,32 +1,36 @@
 #ifndef SCADOCUMENT_H
 #define SCADOCUMENT_H
 
-#include <QObject>
+#include <QString>
 #include <QExplicitlySharedDataPointer>
 
 class QWidget;
-class SCADocument : public QObject
+class QTreeWidget;
+
+class SCADocument final
 {
-  Q_OBJECT
+public:
+  SCADocument() noexcept;
+  SCADocument(const SCADocument& other) noexcept;
+  SCADocument(SCADocument&& other) noexcept;
+  ~SCADocument() noexcept;
 
 public:
-  explicit SCADocument(QObject *parent = nullptr);
-  SCADocument(const SCADocument& other);
-  SCADocument(SCADocument&& other);
-  ~SCADocument() override;
+  SCADocument& operator=(const SCADocument& other) noexcept;
+  SCADocument& operator=(SCADocument&& other) noexcept;
 
 public:
-  SCADocument& operator=(const SCADocument& other);
-  SCADocument& operator=(SCADocument&& other);
+  bool modified() const noexcept;
+  QString error_string() const noexcept;
+  QString file_name() const noexcept;
+  QString display_name() const noexcept;
+  bool save(const QString& file_name) const  noexcept;
+  bool load(const QString& file_name) noexcept;
 
-public:
-  bool modified() const;
-  bool save(QWidget* parent, const QString& file_name) const;
-  bool load(QWidget* parent, const QString& file_name);
+  // Temporary, to be removed
+  void set_modified() noexcept;
 
-signals:
-
-public slots:
+  void show_in_tree(QTreeWidget *tree) const;
 
 private:
   class Private;

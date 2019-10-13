@@ -21,22 +21,24 @@ protected:
   void closeEvent(QCloseEvent *event) override;
 
 private slots:
+  void on_actionNew_triggered();
   void on_actionOpen_triggered();
   void on_actionSave_triggered();
   void on_actionSaveAs_triggered();
 
-  void open(QString file_name);
+  void on_actionCertNew_triggered();
 
 private:
-  QString current_file_name() const;
   void update_ui();
-  void save(bool ask_name, bool close_on_success);
+  void set_document(SCADocument&& newca);
+  bool check_modified();
+  bool open(QString file_name);
+  bool save(bool ask_name);
 
 private:
   Ui::MainWindow *ui;
 
 private:
-  QString current_file_;
   SCADocument current_ca_;
 };
 #endif // MAINWINDOW_H
