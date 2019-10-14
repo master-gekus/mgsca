@@ -19,11 +19,11 @@ public:
 
 public:
   bool modified() const noexcept;
-  const QString& error_string() const noexcept;
-  QString file_name() const noexcept;
-  QString display_name() const noexcept;
-  bool save(const QString& file_name) const noexcept;
-  bool load(const QString& file_name) noexcept;
+  const QString& errorString() const noexcept;
+  QString fileName() const noexcept;
+  QString displayName() const noexcept;
+  bool save(const QString& fileName) const noexcept;
+  bool load(const QString& fileName) noexcept;
 
   // Temporary, to be removed
   void set_modified() noexcept;
@@ -49,17 +49,17 @@ inline bool SCADocument::Private::modified() const noexcept
   return modified_;
 }
 
-inline const QString& SCADocument::Private::error_string() const noexcept
+inline const QString& SCADocument::Private::errorString() const noexcept
 {
   return error_string_;
 }
 
-inline QString SCADocument::Private::file_name() const noexcept
+inline QString SCADocument::Private::fileName() const noexcept
 {
   return file_info_.canonicalFilePath();
 }
 
-inline QString SCADocument::Private::display_name() const noexcept
+inline QString SCADocument::Private::displayName() const noexcept
 {
   return file_info_.isFile() ? file_info_.baseName() : QStringLiteral("<untitled>");
 }
@@ -164,19 +164,19 @@ bool SCADocument::modified() const noexcept
   return d_->modified();
 }
 
-QString SCADocument::error_string() const noexcept
+QString SCADocument::errorString() const noexcept
 {
-  return d_->error_string();
+  return d_->errorString();
 }
 
-QString SCADocument::file_name() const noexcept
+QString SCADocument::fileName() const noexcept
 {
-  return d_->file_name();
+  return d_->fileName();
 }
 
-QString SCADocument::display_name() const noexcept
+QString SCADocument::displayName() const noexcept
 {
-  return d_->display_name();
+  return d_->displayName();
 }
 
 bool SCADocument::save(const QString& file_name) const noexcept

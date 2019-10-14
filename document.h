@@ -21,16 +21,14 @@ public:
 
 public:
   bool modified() const noexcept;
-  QString error_string() const noexcept;
-  QString file_name() const noexcept;
-  QString display_name() const noexcept;
-  bool save(const QString& file_name) const  noexcept;
-  bool load(const QString& file_name) noexcept;
+  QString errorString() const noexcept;
+  QString fileName() const noexcept;
+  QString displayName() const noexcept;
+  bool save(const QString& fileName) const  noexcept;
+  bool load(const QString& fileName) noexcept;
 
   // Temporary, to be removed
   void set_modified() noexcept;
-
-  void show_in_tree(QTreeWidget *tree) const;
 
 private:
   class Private;

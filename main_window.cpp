@@ -57,7 +57,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::idle_update_ui()
 {
-  setWindowTitle(WINDOW_TITLE.arg(current_ca_.display_name(),
+  setWindowTitle(WINDOW_TITLE.arg(current_ca_.displayName(),
                                   current_ca_.modified() ? QStringLiteral("*") : QStringLiteral(""),
                                   QApplication::applicationName()));
 }
@@ -71,7 +71,7 @@ bool MainWindow::check_modified()
 {
   if (current_ca_.modified()) {
     switch (QMessageBox::question(this, QApplication::applicationName(),
-                                  QStringLiteral("File \"%1\" is not saved.\nSave file?").arg(current_ca_.display_name()),
+                                  QStringLiteral("File \"%1\" is not saved.\nSave file?").arg(current_ca_.displayName()),
                                   QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No
                                   | QMessageBox::StandardButton::Cancel)) {
     case QMessageBox::Yes:
@@ -93,7 +93,7 @@ bool MainWindow::check_modified()
 
 bool MainWindow::save(bool ask_name)
 {
-  QString file_name{current_ca_.file_name()};
+  QString file_name{current_ca_.fileName()};
   if (file_name.isEmpty()) {
     file_name = QStringLiteral(".sca");
     ask_name = true;
@@ -109,7 +109,7 @@ bool MainWindow::save(bool ask_name)
 
   if (!current_ca_.save(file_name)) {
     QMessageBox::critical(this, QApplication::applicationName(),
-                          QStringLiteral("Error while saving file.\n: %1").arg(current_ca_.error_string()));
+                          QStringLiteral("Error while saving file.\n: %1").arg(current_ca_.errorString()));
     return false;
   }
 
@@ -121,7 +121,7 @@ bool MainWindow::open(QString file_name)
   SCADocument newca;
   if (!newca.load(file_name)) {
     QMessageBox::critical(this, QApplication::applicationName(),
-                          QStringLiteral("Error open file.\n %1").arg(newca.error_string()));
+                          QStringLiteral("Error open file.\n %1").arg(newca.errorString()));
     return false;
   }
 
