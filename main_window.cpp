@@ -8,6 +8,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "certificate_item.h"
+
 #define WINDOW_TITLE QStringLiteral("%1%2 :: %3")
 #define MAIN_WINDOW_GROUP QStringLiteral("Main Window")
 #define GEOMETRY_KEY QStringLiteral("Geometry")
@@ -33,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
   connect(ui->actionQuit, SIGNAL(triggered()), SLOT(close()));
   connect(&idle_handler_, SIGNAL(idle()), SLOT(idle_update_ui()));
+
+  current_ca_.attachTree(ui->tree);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -65,6 +69,7 @@ void MainWindow::idle_update_ui()
 void MainWindow::set_document(SCADocument&& newca)
 {
   current_ca_ = ::std::move(newca);
+  current_ca_.attachTree(ui->tree);
 }
 
 bool MainWindow::check_modified()
@@ -164,5 +169,5 @@ void MainWindow::on_actionSaveAs_triggered()
 
 void MainWindow::on_actionCertNew_triggered()
 {
-  current_ca_.set_modified();
+  ui->tree->addTopLevelItem(new CertificateItem{});
 }

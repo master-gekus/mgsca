@@ -27,8 +27,7 @@ public:
   bool save(const QString& fileName) const  noexcept;
   bool load(const QString& fileName) noexcept;
 
-  // Temporary, to be removed
-  void set_modified() noexcept;
+  void attachTree(QTreeWidget* tree) noexcept;
 
 private:
   class Private;
