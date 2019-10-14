@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(mgsca LANGUAGES CXX)
 
 # Boring SSL
-add_compile_definitions(BORINGSSL_NO_STATIC_INITIALIZER)
+add_definitions(-DBORINGSSL_NO_STATIC_INITIALIZER)
 add_subdirectory(boringssl)
 add_library(boringssl INTERFACE)
 target_link_libraries(boringssl INTERFACE
