@@ -47,6 +47,7 @@ private:
 private:
   static const constexpr char* name_key_ = "Name";
   static const constexpr char* version_key_ = "Version";
+  static const constexpr char* certificates_key_ = "Certificates";
 };
 
 inline CertificateItem::Private::Private(CertificateItem* owner) noexcept :
@@ -81,6 +82,16 @@ inline void CertificateItem::Private::save(::YAML::Emitter& emitter) const noexc
   save(emitter, version_key_, version_);
   save(emitter, name_key_, name_);
 
+  // Nestes certificates
+  emitter << ::YAML::Key << certificates_key_ << ::YAML::Value << ::YAML::BeginSeq;
+  for (int i = 0; i < owner_->childCount(); ++i) {
+    auto cert = dynamic_cast<const CertificateItem*>(owner_->child(i));
+    if (nullptr != cert) {
+      cert->save(emitter);
+    }
+  }
+  emitter << ::YAML::EndSeq;
+
   emitter << ::YAML::EndMap;
 }
 
@@ -105,6 +116,17 @@ inline bool CertificateItem::Private::load(const ::YAML::Node& node, QString& er
   {
     error_string = QStringLiteral("CertificateItem::load(): unknown exception.");
     return false;
+  }
+
+  ::YAML::Node nested = node[certificates_key_];
+  if (nested.IsSequence()) {
+    for (const auto& nested_node : nested) {
+      CertificateItem* cert{new CertificateItem{}};
+      owner_->addChild(cert);
+      if (!cert->load(nested_node, error_string)) {
+        return false;
+      }
+    }
   }
 
   return true;

@@ -64,6 +64,9 @@ void MainWindow::idle_update_ui()
   setWindowTitle(WINDOW_TITLE.arg(current_ca_.displayName(),
                                   current_ca_.modified() ? QStringLiteral("*") : QStringLiteral(""),
                                   QApplication::applicationName()));
+  bool has_selected{nullptr != selectedCert()};
+  ui->actionCertDelete->setEnabled(has_selected);
+  ui->actionCertNewClient->setEnabled(has_selected);
 }
 
 void MainWindow::set_document(SCADocument&& newca)
@@ -134,6 +137,18 @@ bool MainWindow::open(QString file_name)
   return true;
 }
 
+CertificateItem* MainWindow::selectedCert() const
+{
+  const auto items{ui->tree->selectedItems()};
+
+  if (items.isEmpty()) {
+    return nullptr;
+  }
+  else {
+    return dynamic_cast<CertificateItem*>(items.first());
+  }
+}
+
 void MainWindow::on_actionNew_triggered()
 {
   if (!check_modified()) {
@@ -167,7 +182,32 @@ void MainWindow::on_actionSaveAs_triggered()
   save(true);
 }
 
-void MainWindow::on_actionCertNew_triggered()
+void MainWindow::on_actionCertDelete_triggered()
 {
-  ui->tree->addTopLevelItem(new CertificateItem{});
+
+}
+
+void MainWindow::on_actionCertNewClient_triggered()
+{
+  auto parent{selectedCert()};
+  if (!parent) {
+    return;
+  }
+
+  auto cert = new CertificateItem{};
+  parent->addChild(cert);
+  parent->sortChildren(0, Qt::AscendingOrder);
+  ui->tree->scrollToItem(cert);
+  ui->tree->setCurrentItem(cert);
+  cert->setSelected(true);
+}
+
+void MainWindow::on_actionCertNewRoot_triggered()
+{
+  auto cert = new CertificateItem{};
+  ui->tree->addTopLevelItem(cert);
+  ui->tree->invisibleRootItem()->sortChildren(0, Qt::AscendingOrder);
+  ui->tree->scrollToItem(cert);
+  ui->tree->setCurrentItem(cert);
+  cert->setSelected(true);
 }

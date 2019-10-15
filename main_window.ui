@@ -44,7 +44,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,7 +63,16 @@
     <property name="title">
      <string>Certificate</string>
     </property>
-    <addaction name="actionCertNew"/>
+    <widget class="QMenu" name="menuNew">
+     <property name="title">
+      <string>New</string>
+     </property>
+     <addaction name="actionCertNewRoot"/>
+     <addaction name="actionCertNewClient"/>
+    </widget>
+    <addaction name="menuNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionCertDelete"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCertificate"/>
@@ -94,9 +103,19 @@
     <string>New</string>
    </property>
   </action>
-  <action name="actionCertNew">
+  <action name="actionCertNewRoot">
    <property name="text">
-    <string>New...</string>
+    <string>Root...</string>
+   </property>
+  </action>
+  <action name="actionCertNewClient">
+   <property name="text">
+    <string>Client...</string>
+   </property>
+  </action>
+  <action name="actionCertDelete">
+   <property name="text">
+    <string>Delete...</string>
    </property>
   </action>
  </widget>

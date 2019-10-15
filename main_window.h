@@ -10,6 +10,8 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+class CertificateItem;
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
@@ -27,7 +29,9 @@ private slots:
   void on_actionSave_triggered();
   void on_actionSaveAs_triggered();
 
-  void on_actionCertNew_triggered();
+  void on_actionCertDelete_triggered();
+  void on_actionCertNewClient_triggered();
+  void on_actionCertNewRoot_triggered();
 
   void idle_update_ui();
 
@@ -36,6 +40,7 @@ private:
   bool check_modified();
   bool open(QString file_name);
   bool save(bool ask_name);
+  CertificateItem* selectedCert() const;
 
 private:
   Ui::MainWindow *ui;
