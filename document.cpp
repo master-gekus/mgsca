@@ -48,10 +48,10 @@ private:
   mutable QTreeWidgetItem fake_top_level_item_;
 
 private:
-  static const char* certificates_key_;
+  static const char* root_certificates_key_;
 };
 
-const char* SCADocument::Private::certificates_key_ = "Certificates";
+const char* SCADocument::Private::root_certificates_key_ = "Root Certificates";
 
 inline SCADocument::Private::Private() noexcept :
   modified_{false},
@@ -98,8 +98,20 @@ inline bool SCADocument::Private::save(const QString& file_name) const noexcept
   ::YAML::Emitter e{ss};
   e << ::YAML::Comment(
          "This file is created by " + QApplication::applicationName().toUtf8().toStdString() + "\n"
-         "Do not edit it directly."
+         "Do not edit it directly without strong necessity."
          );
+
+  e << ::YAML::BeginMap << root_certificates_key_ << ::YAML::BeginSeq;
+
+  QTreeWidgetItem* root{tree_ ? tree_->invisibleRootItem() : &fake_top_level_item_};
+  for (int i = 0; i < root->childCount(); ++i) {
+    CertificateItem const* cert = dynamic_cast<CertificateItem const*>(root->child(i));
+    if (cert) {
+      cert->save(e);
+    }
+  }
+
+  e << ::YAML::EndSeq << ::YAML::EndMap;
 
   auto res{ss.str()};
   file.write(res.data(), static_cast<qint64>(res.size()));
@@ -142,11 +154,25 @@ inline bool SCADocument::Private::load(const QString& file_name) noexcept
 
   QList<QTreeWidgetItem*> newcerts;
 
-//  ::YAML::Node newcerts = newwhole[certificates_key_];
-//  if ((!newcerts.IsDefined()) || (!newcerts.IsSequence())) {
-//    error_string_ = QStringLiteral("\"%1\": Error parsing file: invalid file format").arg(QDir::toNativeSeparators(file_name));
-//    return false;
-//  }
+  ::YAML::Node certs = newwhole[root_certificates_key_];
+  if ((!certs.IsDefined()) || (!certs.IsSequence())) {
+    error_string_ = QStringLiteral("\"%1\": Invalid file format (required key \"%2\" not found or not a sequence.")
+                    .arg(QDir::toNativeSeparators(file_name), QObject::trUtf8(root_certificates_key_));
+    return false;
+  }
+
+  for (const auto& cert : certs) {
+    QString error_string;
+    CertificateItem *item = new CertificateItem{};
+    if (!item->load(cert, error_string)) {
+      error_string_ = error_string;
+      for (auto& i : newcerts) {
+        delete i;
+      }
+      return false;
+    }
+    newcerts.append(item);
+  }
 
   if (tree_) {
     tree_->addTopLevelItems(newcerts);

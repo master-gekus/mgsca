@@ -114,7 +114,7 @@ bool MainWindow::save(bool ask_name)
 
   if (!current_ca_.save(file_name)) {
     QMessageBox::critical(this, QApplication::applicationName(),
-                          QStringLiteral("Error while saving file.\n: %1").arg(current_ca_.errorString()));
+                          QStringLiteral("Error while saving file.\n%1").arg(current_ca_.errorString()));
     return false;
   }
 
@@ -126,7 +126,7 @@ bool MainWindow::open(QString file_name)
   SCADocument newca;
   if (!newca.load(file_name)) {
     QMessageBox::critical(this, QApplication::applicationName(),
-                          QStringLiteral("Error open file.\n %1").arg(newca.errorString()));
+                          QStringLiteral("Error open file.\n%1").arg(newca.errorString()));
     return false;
   }
 
