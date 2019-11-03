@@ -33,6 +33,8 @@ private slots:
   void on_actionCertNew_triggered();
   void on_actionCertEdit_triggered();
 
+  void tree_context_menu(const QPoint &pos);
+
   void idle_update_ui();
 
   bool open(QString file_name);

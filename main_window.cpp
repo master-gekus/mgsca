@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(ui->actionQuit, SIGNAL(triggered()), SLOT(close()));
   connect(&idle_handler_, SIGNAL(idle()), SLOT(idle_update_ui()));
 
+  ui->tree->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->tree, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(tree_context_menu(const QPoint &)));
+  connect(ui->tree, SIGNAL(doubleClicked(QModelIndex)), SLOT(on_actionCertEdit_triggered()));
+
   current_ca_.attachTree(ui->tree);
 }
 
@@ -58,6 +62,11 @@ MainWindow::~MainWindow()
   settings.setValue(STATE_KEY, saveState());
 
   delete ui;
+}
+
+void MainWindow::tree_context_menu(const QPoint &pos)
+{
+  ui->menuCertificate->exec(ui->tree->viewport()->mapToGlobal(pos));
 }
 
 void MainWindow::idle_update_ui()
