@@ -66,15 +66,9 @@
     <property name="title">
      <string>Certificate</string>
     </property>
-    <widget class="QMenu" name="menuNew">
-     <property name="title">
-      <string>New</string>
-     </property>
-     <addaction name="actionCertNewRoot"/>
-     <addaction name="actionCertNewClient"/>
-    </widget>
-    <addaction name="menuNew"/>
     <addaction name="separator"/>
+    <addaction name="actionCertNew"/>
+    <addaction name="actionCertEdit"/>
     <addaction name="actionCertDelete"/>
    </widget>
    <addaction name="menuFile"/>
@@ -106,19 +100,28 @@
     <string>New</string>
    </property>
   </action>
-  <action name="actionCertNewRoot">
-   <property name="text">
-    <string>Root...</string>
-   </property>
-  </action>
-  <action name="actionCertNewClient">
-   <property name="text">
-    <string>Client...</string>
-   </property>
-  </action>
   <action name="actionCertDelete">
    <property name="text">
     <string>Delete...</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionCertNew">
+   <property name="text">
+    <string>New...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ins</string>
+   </property>
+  </action>
+  <action name="actionCertEdit">
+   <property name="text">
+    <string>Edit...</string>
+   </property>
+   <property name="shortcut">
+    <string>Return</string>
    </property>
   </action>
  </widget>

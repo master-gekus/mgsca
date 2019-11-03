@@ -6,6 +6,7 @@
 
 class QWidget;
 class QTreeWidget;
+class QTreeWidgetItem;
 
 class SCADocument final
 {
@@ -28,6 +29,8 @@ public:
   bool load(const QString& fileName) noexcept;
 
   void attachTree(QTreeWidget* tree) noexcept;
+
+  QTreeWidgetItem* invisibleRootItem() const noexcept;
 
 private:
   class Private;

@@ -171,3 +171,8 @@ bool CertificateItem::load(const ::YAML::Node& node, QString& error_string) noex
 {
   return d_->load(node, error_string);
 }
+
+void CertificateItem::updateView()
+{
+  emitDataChanged();
+}

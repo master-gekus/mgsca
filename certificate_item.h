@@ -22,6 +22,9 @@ public:
   virtual void save(::YAML::Emitter& emitter) const noexcept;
   virtual bool load(const YAML::Node& node, QString& error_string) noexcept;
 
+public:
+  void updateView();
+
 private:
   Q_DISABLE_COPY(CertificateItem)
 

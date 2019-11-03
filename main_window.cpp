@@ -9,6 +9,7 @@
 #include <QMessageBox>
 
 #include "certificate_item.h"
+#include "certificate_edit_dialog.h"
 
 #define WINDOW_TITLE QStringLiteral("%1%2 :: %3")
 #define MAIN_WINDOW_GROUP QStringLiteral("Main Window")
@@ -66,7 +67,7 @@ void MainWindow::idle_update_ui()
                                   QApplication::applicationName()));
   bool has_selected{nullptr != selectedCert()};
   ui->actionCertDelete->setEnabled(has_selected);
-  ui->actionCertNewClient->setEnabled(has_selected);
+  ui->actionCertEdit->setEnabled(has_selected);
 }
 
 void MainWindow::set_document(SCADocument&& newca)
@@ -149,6 +150,19 @@ CertificateItem* MainWindow::selectedCert() const
   }
 }
 
+inline QTreeWidgetItem* MainWindow::safe_issuer(QTreeWidgetItem* issuer) const
+{
+  return (nullptr == issuer) ? ui->tree->invisibleRootItem() : issuer;
+}
+
+void MainWindow::update_and_select(QTreeWidgetItem* issuer, QTreeWidgetItem* cert)
+{
+  issuer->sortChildren(0, Qt::AscendingOrder);
+  ui->tree->scrollToItem(cert);
+  ui->tree->setCurrentItem(cert);
+  cert->setSelected(true);
+}
+
 void MainWindow::on_actionNew_triggered()
 {
   if (!check_modified()) {
@@ -184,30 +198,45 @@ void MainWindow::on_actionSaveAs_triggered()
 
 void MainWindow::on_actionCertDelete_triggered()
 {
-
 }
 
-void MainWindow::on_actionCertNewClient_triggered()
+void MainWindow::on_actionCertNew_triggered()
 {
-  auto parent{selectedCert()};
-  if (!parent) {
+  CertificateEditDialog ced{this, current_ca_};
+  ced.setIssuer(selectedCert());
+
+  if (QDialog::Accepted != ced.exec()) {
     return;
   }
 
-  auto cert = new CertificateItem{};
-  parent->addChild(cert);
-  parent->sortChildren(0, Qt::AscendingOrder);
-  ui->tree->scrollToItem(cert);
-  ui->tree->setCurrentItem(cert);
-  cert->setSelected(true);
+  QTreeWidgetItem *issuer{safe_issuer(ced.issuer())};
+
+  CertificateItem *cert = ced.certificate();
+  issuer->addChild(cert);
+  update_and_select(issuer, cert);
 }
 
-void MainWindow::on_actionCertNewRoot_triggered()
+void MainWindow::on_actionCertEdit_triggered()
 {
-  auto cert = new CertificateItem{};
-  ui->tree->addTopLevelItem(cert);
-  ui->tree->invisibleRootItem()->sortChildren(0, Qt::AscendingOrder);
-  ui->tree->scrollToItem(cert);
-  ui->tree->setCurrentItem(cert);
-  cert->setSelected(true);
+  auto cert{selectedCert()};
+  if (!cert) {
+    return;
+  }
+  QTreeWidgetItem* old_issuer{safe_issuer(cert->parent())};
+
+  CertificateEditDialog ced{this, current_ca_, cert};
+  if (QDialog::Accepted != ced.exec()) {
+    return;
+  }
+
+  QTreeWidgetItem* issuer{safe_issuer(ced.issuer())};
+  if (issuer != old_issuer) {
+    old_issuer->takeChild(old_issuer->indexOfChild(cert));
+    issuer->addChild(cert);
+  }
+  else {
+    cert->updateView();
+  }
+
+  update_and_select(issuer, cert);
 }

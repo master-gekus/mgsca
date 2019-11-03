@@ -20,6 +20,9 @@ public:
   Private() noexcept;
   ~Private() noexcept;
 
+private:
+  Q_DISABLE_COPY(Private)
+
 public:
   bool modified() const noexcept;
   const QString& errorString() const noexcept;
@@ -29,6 +32,8 @@ public:
   bool load(const QString& fileName) noexcept;
 
   void attachTree(QTreeWidget* tree) const noexcept;
+
+  QTreeWidgetItem* invisibleRootItem() const noexcept;
 
 private:
   void detachTree() const noexcept;
@@ -221,6 +226,11 @@ void SCADocument::Private::attachTree(QTreeWidget* tree) const noexcept
   rows_removed_connection_  = QObject::connect(model, &QAbstractItemModel::rowsRemoved, data_changed_fn);
 }
 
+QTreeWidgetItem* SCADocument::Private::invisibleRootItem() const noexcept
+{
+  return (nullptr == tree_) ? (&fake_top_level_item_) : tree_->invisibleRootItem();
+}
+
 void SCADocument::Private::detachTree() const noexcept
 {
   QObject::disconnect(widget_destroyed_connection_);
@@ -304,4 +314,9 @@ bool SCADocument::load(const QString& file_name) noexcept
 void SCADocument::attachTree(QTreeWidget* tree) noexcept
 {
   d_->attachTree(tree);
+}
+
+QTreeWidgetItem* SCADocument::invisibleRootItem() const noexcept
+{
+  return d_->invisibleRootItem();
 }

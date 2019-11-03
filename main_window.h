@@ -30,8 +30,8 @@ private slots:
   void on_actionSaveAs_triggered();
 
   void on_actionCertDelete_triggered();
-  void on_actionCertNewClient_triggered();
-  void on_actionCertNewRoot_triggered();
+  void on_actionCertNew_triggered();
+  void on_actionCertEdit_triggered();
 
   void idle_update_ui();
 
@@ -42,6 +42,8 @@ private:
   bool check_modified();
   bool save(bool ask_name);
   CertificateItem* selectedCert() const;
+  QTreeWidgetItem* safe_issuer(QTreeWidgetItem* issuer) const;
+  void update_and_select(QTreeWidgetItem* issuer, QTreeWidgetItem* cert);
 
 private:
   Ui::MainWindow *ui;
