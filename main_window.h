@@ -35,10 +35,11 @@ private slots:
 
   void idle_update_ui();
 
+  bool open(QString file_name);
+
 private:
   void set_document(SCADocument&& newca);
   bool check_modified();
-  bool open(QString file_name);
   bool save(bool ask_name);
   CertificateItem* selectedCert() const;
 
