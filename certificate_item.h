@@ -15,6 +15,7 @@ class CertificateItem final : public QTreeWidgetItem
 {
 public:
   CertificateItem();
+  explicit CertificateItem(const CertificateData& certificate_data);
   ~CertificateItem() override;
 
 private:
@@ -32,9 +33,6 @@ public:
 
   const CertificateData& certificateData() const noexcept;
   void setCertificateData(const CertificateData& certificate_data) noexcept;
-
-public:
-  void updateView();
 
 private:
   class Private;

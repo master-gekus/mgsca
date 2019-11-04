@@ -10,6 +10,7 @@ class CertificateItem::Private final
 {
 public:
   explicit Private(CertificateItem* owner) noexcept;
+  Private(CertificateItem* owner, const CertificateData& certificate_data) noexcept;
 
 public:
   const CertificateData& certificateData() const noexcept;
@@ -29,6 +30,12 @@ private:
 
 inline CertificateItem::Private::Private(CertificateItem* owner) noexcept :
   owner_{owner}
+{
+}
+
+inline CertificateItem::Private::Private(CertificateItem* owner, const CertificateData& certificate_data) noexcept :
+  owner_{owner},
+  data_{certificate_data}
 {
 }
 
@@ -91,6 +98,11 @@ CertificateItem::CertificateItem() :
 {
 }
 
+CertificateItem::CertificateItem(const CertificateData& certificate_data) :
+  d_{new Private{this, certificate_data}}
+{
+}
+
 CertificateItem::~CertificateItem()
 {
   delete d_;
@@ -134,10 +146,5 @@ const CertificateData& CertificateItem::certificateData() const noexcept
 void CertificateItem::setCertificateData(const CertificateData& certificate_data) noexcept
 {
   d_->setCertificateData(certificate_data);
-}
-
-void CertificateItem::updateView()
-{
   emitDataChanged();
 }
-

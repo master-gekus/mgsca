@@ -2,6 +2,8 @@
 #include "ui_certificate_edit_dialog.h"
 
 #include <QMenu>
+#include <QMessageBox>
+#include <QApplication>
 
 #include "certificate_item.h"
 #include "document.h"
@@ -42,6 +44,15 @@ CertificateEditDialog::~CertificateEditDialog()
   delete ui;
 }
 
+void CertificateEditDialog::done(int r)
+{
+  if ((QDialog::Accepted == r) && (!validate_and_save())) {
+    return;
+  }
+
+  QDialog::done(r);
+}
+
 QTreeWidgetItem* CertificateEditDialog::issuer() const
 {
   int index = ui->comboIssuer->currentIndex();
@@ -58,6 +69,22 @@ void CertificateEditDialog::setIssuer(CertificateItem* issuer)
 
 void CertificateEditDialog::setup_dialog_data()
 {
+  // Version
+  if (1 == cert_data_.version()) {
+    ui->radioVersion1->setChecked(true);
+  }
+  else {
+    ui->radioVersion3->setChecked(true);
+  }
+
+}
+
+bool CertificateEditDialog::validate_and_save()
+{
+  // Version
+  cert_data_.setVersion(ui->radioVersion1->isChecked() ? 1 : 3);
+
+  return true;
 }
 
 void CertificateEditDialog::add_childs_to_issuers_combo(QTreeWidgetItem* parent, CertificateItem* const exclude)

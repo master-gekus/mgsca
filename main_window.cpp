@@ -220,7 +220,7 @@ void MainWindow::on_actionCertNew_triggered()
 
   QTreeWidgetItem *issuer{safe_issuer(ced.issuer())};
 
-  CertificateItem *cert = new CertificateItem();
+  CertificateItem *cert = new CertificateItem{ced.certificateData()};
   issuer->addChild(cert);
   update_and_select(issuer, cert);
 }
@@ -239,12 +239,10 @@ void MainWindow::on_actionCertEdit_triggered()
   }
 
   QTreeWidgetItem* issuer{safe_issuer(ced.issuer())};
+  cert->setCertificateData(ced.certificateData());
   if (issuer != old_issuer) {
     old_issuer->takeChild(old_issuer->indexOfChild(cert));
     issuer->addChild(cert);
-  }
-  else {
-    cert->updateView();
   }
 
   update_and_select(issuer, cert);

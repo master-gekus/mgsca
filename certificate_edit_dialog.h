@@ -19,14 +19,20 @@ class CertificateEditDialog : public QDialog
 
 public:
   CertificateEditDialog(QWidget *parent, SCADocument& doc, CertificateItem* cert = nullptr);
-  ~CertificateEditDialog();
+  ~CertificateEditDialog() override;
+
+protected:
+  void done(int r) override;
 
 public:
   QTreeWidgetItem* issuer() const;
   void setIssuer(CertificateItem* issuer);
 
+  const CertificateData& certificateData() const noexcept;
+
 private:
   void setup_dialog_data();
+  bool validate_and_save();
 
   void add_childs_to_issuers_combo(QTreeWidgetItem* parent, CertificateItem* const exclude);
   void select_issuer(CertificateItem* issuer);
@@ -38,5 +44,10 @@ private:
 private:
   Ui::CertificateEditDialog *ui;
 };
+
+inline const CertificateData& CertificateEditDialog::certificateData() const noexcept
+{
+  return cert_data_;
+}
 
 #endif // CERTIFICATE_EDIT_DIALOG_H
