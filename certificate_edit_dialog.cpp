@@ -5,9 +5,14 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QDateTime>
+#include <QSettings>
 
+#include "utils.h"
 #include "certificate_item.h"
 #include "document.h"
+
+#define DIALOG_GROUP QStringLiteral("Certificate Edit Dialog")
+#define GEOMETRY_KEY QStringLiteral("Geometry")
 
 CertificateEditDialog::CertificateEditDialog(QWidget *parent, SCADocument& doc, CertificateItem* cert) :
   QDialog(parent),
@@ -17,6 +22,11 @@ CertificateEditDialog::CertificateEditDialog(QWidget *parent, SCADocument& doc, 
   ui->setupUi(this);
 
   setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
+  QSettings settings;
+  settings.beginGroup(DIALOG_GROUP);
+  restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
+  Utils::restoreElementsState(this, settings);
 
   ui->radioVersion1->setChecked(true);
 
@@ -42,6 +52,11 @@ CertificateEditDialog::CertificateEditDialog(QWidget *parent, SCADocument& doc, 
 
 CertificateEditDialog::~CertificateEditDialog()
 {
+  QSettings settings;
+  settings.beginGroup(DIALOG_GROUP);
+  settings.setValue(GEOMETRY_KEY, saveGeometry());
+  Utils::saveElementsState(this, settings);
+
   delete ui;
 }
 
