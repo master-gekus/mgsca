@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  ui->tree->header()->setSectionsMovable(false);
+
   QSettings settings;
   settings.beginGroup(MAIN_WINDOW_GROUP);
   restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());

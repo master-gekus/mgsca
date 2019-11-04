@@ -110,11 +110,28 @@ CertificateItem::~CertificateItem()
 
 QVariant CertificateItem::data(int column, int role) const
 {
-  switch (column) {
-  case 0:
-    switch (role) {
-    case Qt::DisplayRole:
+  switch (role) {
+  case Qt::DisplayRole:
+    switch (column) {
+    case 0:
       return d_->certificateData().name();
+
+    case 1:
+      return d_->certificateData().validFrom().toString(Qt::SystemLocaleShortDate);
+
+    case 2:
+      return d_->certificateData().validTill().toString(Qt::SystemLocaleShortDate);
+
+    default:
+      break;
+    }
+    break;
+
+  case Qt::TextAlignmentRole:
+    switch (column) {
+    case 1:
+    case 2:
+      return static_cast<int>(Qt::AlignVCenter | Qt::AlignHCenter);
 
     default:
       break;
