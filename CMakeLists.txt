@@ -35,6 +35,8 @@ add_executable(mgsca
   document.h
   certificate_item.cpp
   certificate_item.h
+  certificate_data.cpp
+  certificate_data.h
   certificate_edit_dialog.cpp
   certificate_edit_dialog.h
   certificate_edit_dialog.ui

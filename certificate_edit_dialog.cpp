@@ -9,7 +9,6 @@
 CertificateEditDialog::CertificateEditDialog(QWidget *parent, SCADocument& doc, CertificateItem* cert) :
   QDialog(parent),
   doc_(doc),
-  cert_((nullptr == cert) ? new CertificateItem : cert),
   ui(new Ui::CertificateEditDialog)
 {
   ui->setupUi(this);
@@ -28,18 +27,19 @@ CertificateEditDialog::CertificateEditDialog(QWidget *parent, SCADocument& doc, 
   ui->btnQuickInterval->setMenu(quickIntervalMenu);
 
   ui->comboIssuer->addItem("<self-signed>", QVariant::fromValue(nullptr));
-  add_childs_to_issuers_combo(doc_.invisibleRootItem());
-  select_issuer(dynamic_cast<CertificateItem*>(cert_->parent()));
+  add_childs_to_issuers_combo(doc_.invisibleRootItem(), cert);
+
+  if (nullptr != cert) {
+    cert_data_ = cert->certificateData();
+    select_issuer(cert->issuer());
+  }
+
+  setup_dialog_data();
 }
 
 CertificateEditDialog::~CertificateEditDialog()
 {
   delete ui;
-}
-
-CertificateItem* CertificateEditDialog::certificate() const
-{
-  return cert_;
 }
 
 QTreeWidgetItem* CertificateEditDialog::issuer() const
@@ -56,15 +56,19 @@ void CertificateEditDialog::setIssuer(CertificateItem* issuer)
   select_issuer(issuer);
 }
 
-void CertificateEditDialog::add_childs_to_issuers_combo(QTreeWidgetItem* parent)
+void CertificateEditDialog::setup_dialog_data()
+{
+}
+
+void CertificateEditDialog::add_childs_to_issuers_combo(QTreeWidgetItem* parent, CertificateItem* const exclude)
 {
   for (int i = 0; i < parent->childCount(); ++i) {
     CertificateItem *item = dynamic_cast<CertificateItem*>(parent->child(i));
-    if ((nullptr == item) || (cert_ == item)) {
+    if ((nullptr == item) || (exclude == item)) {
       continue;
     }
     ui->comboIssuer->addItem(item->text(0), QVariant::fromValue(static_cast<void*>(item)));
-    add_childs_to_issuers_combo(item);
+    add_childs_to_issuers_combo(item, exclude);
   }
 }
 

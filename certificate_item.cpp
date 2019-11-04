@@ -4,21 +4,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace YAML {
-
-template<>
-struct convert<QString> {
-  static Node encode(const QString& rhs) {
-    return Node{rhs.toUtf8().toStdString()};
-  }
-
-  static bool decode(const Node& node, QString& rhs) {
-    rhs = QString::fromUtf8(QByteArray::fromStdString(node.as<::std::string>()));
-    return true;
-  }
-};
-
-} // namespace YAML
+#include "certificate_data.h"
 
 class CertificateItem::Private final
 {
@@ -26,61 +12,41 @@ public:
   explicit Private(CertificateItem* owner) noexcept;
 
 public:
-  const QString& name() const noexcept;
+  const CertificateData& certificateData() const noexcept;
+  void setCertificateData(const CertificateData& certificate_data) noexcept;
 
 public:
   void save(::YAML::Emitter& emitter) const noexcept;
   bool load(const ::YAML::Node& node, QString& error_string) noexcept;
 
-public:
-  template<typename T>
-  static void save(::YAML::Emitter& emitter, const char* key, const T& value) noexcept;
-
-  template<typename T>
-  static void load(const ::YAML::Node& node, const char* key, T& value);
-
 private:
   CertificateItem* owner_;
-  unsigned version_;
-  QString name_;
+  CertificateData data_;
 
 private:
-  static const constexpr char* name_key_ = "Name";
-  static const constexpr char* version_key_ = "Version";
   static const constexpr char* certificates_key_ = "Certificates";
 };
 
 inline CertificateItem::Private::Private(CertificateItem* owner) noexcept :
-  owner_{owner},
-  version_{3}
+  owner_{owner}
 {
-  static int counter = 0;
-  name_ = QStringLiteral("Certificate #%1").arg(++counter);
 }
 
-template<typename T>
-inline void CertificateItem::Private::save(::YAML::Emitter& emitter, const char* key, const T& value) noexcept
+const CertificateData& CertificateItem::Private::certificateData() const noexcept
 {
-  emitter << ::YAML::Key << key << ::YAML::Value << ::YAML::Node{value};
+  return data_;
 }
 
-template<typename T>
-inline void CertificateItem::Private::load(const ::YAML::Node& node, const char* key, T& value)
+void CertificateItem::Private::setCertificateData(const CertificateData& certificate_data) noexcept
 {
-  value = node[key].as<T>(value);
-}
-
-inline const QString& CertificateItem::Private::name() const noexcept
-{
-  return name_;
+  data_ = certificate_data;
 }
 
 inline void CertificateItem::Private::save(::YAML::Emitter& emitter) const noexcept
 {
   emitter << ::YAML::BeginMap;
 
-  save(emitter, version_key_, version_);
-  save(emitter, name_key_, name_);
+  data_.save(emitter);
 
   // Nestes certificates
   emitter << ::YAML::Key << certificates_key_ << ::YAML::Value << ::YAML::BeginSeq;
@@ -102,19 +68,7 @@ inline bool CertificateItem::Private::load(const ::YAML::Node& node, QString& er
     return false;
   }
 
-  try {
-    load(node, version_key_, version_);
-    load(node, name_key_, name_);
-  }
-  catch (::YAML::Exception& e)
-  {
-    error_string = QStringLiteral("[%1:%2]: %3").arg(e.mark.line).arg(e.mark.column)
-                   .arg(QString::fromUtf8(QByteArray::fromStdString(e.msg)));
-    return false;
-  }
-  catch (...)
-  {
-    error_string = QStringLiteral("CertificateItem::load(): unknown exception.");
+  if (!data_.load(node, error_string)) {
     return false;
   }
 
@@ -148,7 +102,7 @@ QVariant CertificateItem::data(int column, int role) const
   case 0:
     switch (role) {
     case Qt::DisplayRole:
-      return d_->name();
+      return d_->certificateData().name();
 
     default:
       break;
@@ -172,7 +126,18 @@ bool CertificateItem::load(const ::YAML::Node& node, QString& error_string) noex
   return d_->load(node, error_string);
 }
 
+const CertificateData& CertificateItem::certificateData() const noexcept
+{
+  return d_->certificateData();
+}
+
+void CertificateItem::setCertificateData(const CertificateData& certificate_data) noexcept
+{
+  d_->setCertificateData(certificate_data);
+}
+
 void CertificateItem::updateView()
 {
   emitDataChanged();
 }
+

@@ -9,28 +9,41 @@ class Node;
 class Emitter;
 }
 
-class CertificateItem : public QTreeWidgetItem
+class CertificateData;
+
+class CertificateItem final : public QTreeWidgetItem
 {
 public:
   CertificateItem();
   ~CertificateItem() override;
 
+private:
+  Q_DISABLE_COPY(CertificateItem)
+
 protected:
   QVariant data(int column, int role) const override;
 
 public:
-  virtual void save(::YAML::Emitter& emitter) const noexcept;
-  virtual bool load(const YAML::Node& node, QString& error_string) noexcept;
+  void save(::YAML::Emitter& emitter) const noexcept;
+  bool load(const YAML::Node& node, QString& error_string) noexcept;
+
+public:
+  CertificateItem* issuer() const;
+
+  const CertificateData& certificateData() const noexcept;
+  void setCertificateData(const CertificateData& certificate_data) noexcept;
 
 public:
   void updateView();
 
 private:
-  Q_DISABLE_COPY(CertificateItem)
-
-private:
   class Private;
   Private *d_;
 };
+
+inline CertificateItem* CertificateItem::issuer() const
+{
+  return dynamic_cast<CertificateItem*>(parent());
+}
 
 #endif // CERTIFICATEITEM_H

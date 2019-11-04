@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "certificate_data.h"
+
 class SCADocument;
 class CertificateItem;
 class QTreeWidgetItem;
@@ -20,17 +22,18 @@ public:
   ~CertificateEditDialog();
 
 public:
-  CertificateItem* certificate() const;
   QTreeWidgetItem* issuer() const;
   void setIssuer(CertificateItem* issuer);
 
 private:
-  void add_childs_to_issuers_combo(QTreeWidgetItem* parent);
+  void setup_dialog_data();
+
+  void add_childs_to_issuers_combo(QTreeWidgetItem* parent, CertificateItem* const exclude);
   void select_issuer(CertificateItem* issuer);
 
 private:
   SCADocument& doc_;
-  CertificateItem* cert_;
+  CertificateData cert_data_;
 
 private:
   Ui::CertificateEditDialog *ui;

@@ -220,7 +220,7 @@ void MainWindow::on_actionCertNew_triggered()
 
   QTreeWidgetItem *issuer{safe_issuer(ced.issuer())};
 
-  CertificateItem *cert = ced.certificate();
+  CertificateItem *cert = new CertificateItem();
   issuer->addChild(cert);
   update_and_select(issuer, cert);
 }
