@@ -4,6 +4,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QApplication>
+#include <QDateTime>
 
 #include "certificate_item.h"
 #include "document.h"
@@ -20,12 +21,12 @@ CertificateEditDialog::CertificateEditDialog(QWidget *parent, SCADocument& doc, 
   ui->radioVersion1->setChecked(true);
 
   QMenu *quickIntervalMenu{new QMenu};
-  quickIntervalMenu->addAction(trUtf8("1 year"));
-  quickIntervalMenu->addAction(trUtf8("2 years"));
-  quickIntervalMenu->addAction(trUtf8("3 years"));
-  quickIntervalMenu->addAction(trUtf8("5 years"));
-  quickIntervalMenu->addAction(trUtf8("10 years"));
-  quickIntervalMenu->addAction(trUtf8("30 years"));
+  quickIntervalMenu->addAction(trUtf8("1 year"), [=](){set_year_interval(1);});
+  quickIntervalMenu->addAction(trUtf8("2 years"), [=](){set_year_interval(2);});
+  quickIntervalMenu->addAction(trUtf8("3 years"), [=](){set_year_interval(3);});
+  quickIntervalMenu->addAction(trUtf8("5 years"), [=](){set_year_interval(5);});
+  quickIntervalMenu->addAction(trUtf8("10 years"), [=](){set_year_interval(10);});
+  quickIntervalMenu->addAction(trUtf8("30 years"), [=](){set_year_interval(30);});
   ui->btnQuickInterval->setMenu(quickIntervalMenu);
 
   ui->comboIssuer->addItem("<self-signed>", QVariant::fromValue(nullptr));
@@ -77,13 +78,53 @@ void CertificateEditDialog::setup_dialog_data()
     ui->radioVersion3->setChecked(true);
   }
 
+  // Validity
+  ui->dateValidFrom->setDateTime(cert_data_.validFrom());
+  ui->dateValidTill->setDateTime(cert_data_.validTill());
 }
 
 bool CertificateEditDialog::validate_and_save()
 {
-  // Version
   cert_data_.setVersion(ui->radioVersion1->isChecked() ? 1 : 3);
 
+  return validate_and_save_validity();
+}
+
+bool CertificateEditDialog::validate_and_save_validity()
+{
+  const QDateTime valid_from{ui->dateValidFrom->dateTime()};
+  const QDateTime valid_till{ui->dateValidTill->dateTime()};
+  const QDateTime now{QDateTime::currentDateTime()};
+
+  if (valid_from >= valid_till) {
+    QMessageBox::critical(this, QApplication::applicationName(),
+                          QStringLiteral("Invalid validity interval: \"Till\" before \"From\"."));
+   focus_widget_and_activate_tab(ui->dateValidTill);
+   return false;
+  }
+
+  if (now > valid_till) {
+    if (QMessageBox::Yes
+        != QMessageBox::question(this, QApplication::applicationName(),
+                          QStringLiteral("Certificate validity is expired. Are youe sure?"),
+                          QMessageBox::Yes | QMessageBox::No, QMessageBox::No)) {
+      focus_widget_and_activate_tab(ui->dateValidTill);
+      return false;
+    }
+  }
+
+  if (now < valid_from) {
+    if (QMessageBox::Yes
+        != QMessageBox::question(this, QApplication::applicationName(),
+                          QStringLiteral("Certificate validity will starts in the future. Are youe sure?"),
+                          QMessageBox::Yes | QMessageBox::No, QMessageBox::No)) {
+      focus_widget_and_activate_tab(ui->dateValidTill);
+      return false;
+    }
+  }
+
+  cert_data_.setValidFrom(valid_from);
+  cert_data_.setValidTill(valid_till);
   return true;
 }
 
@@ -108,4 +149,19 @@ void CertificateEditDialog::select_issuer(CertificateItem* issuer)
     }
   }
   ui->comboIssuer->setCurrentIndex(0);
+}
+
+inline void CertificateEditDialog::set_year_interval(int years) noexcept
+{
+  ui->dateValidTill->setDateTime(ui->dateValidFrom->dateTime().addYears(years));
+}
+
+void CertificateEditDialog::focus_widget_and_activate_tab(QWidget* widget)
+{
+  if (nullptr == widget) {
+    return;
+  }
+
+  // TODO: Activate tab of widget
+  widget->setFocus();
 }

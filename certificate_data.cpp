@@ -18,6 +18,18 @@ struct convert<QString> {
   }
 };
 
+template<>
+struct convert<QDateTime> {
+  static Node encode(const QDateTime& rhs) {
+    return Node{rhs.toTime_t()};
+  }
+
+  static bool decode(const Node& node, QDateTime& rhs) {
+    rhs = QDateTime::fromTime_t(node.as<uint>());
+    return true;
+  }
+};
+
 } // namespace YAML
 
 class CertificateData::Private : public QSharedData
@@ -38,6 +50,8 @@ public:
 
 public:
   int version_;
+  QDateTime valid_from_;
+  QDateTime valid_till_;
 
   // TODO: temporary, to remove
   QString name_;
@@ -45,10 +59,14 @@ public:
 public:
   static const constexpr char* name_key_ = "Name";
   static const constexpr char* version_key_ = "Version";
+  static const constexpr char* valid_from_key_ = "Valid from";
+  static const constexpr char* valid_till_key_ = "Valid till";
 };
 
 inline CertificateData::Private::Private() noexcept :
-  version_{3}
+  version_{3},
+  valid_from_{QDateTime::currentDateTime()},
+  valid_till_{valid_from_.addYears(1)}
 {
   // TODO: temporary, to remove
   static int counter = 0;
@@ -70,6 +88,10 @@ inline void CertificateData::Private::load(const ::YAML::Node& node, const char*
 void CertificateData::Private::save(::YAML::Emitter& emitter) const noexcept
 {
   save(emitter, version_key_, version_);
+  save(emitter, valid_from_key_, valid_from_);
+  save(emitter, valid_till_key_, valid_till_);
+
+  // TODO: temporary, to remove
   save(emitter, name_key_, name_);
 }
 
@@ -77,6 +99,10 @@ bool CertificateData::Private::load(const YAML::Node& node, QString& error_strin
 {
   try {
     load(node, version_key_, version_);
+    load(node, valid_from_key_, valid_from_);
+    load(node, valid_till_key_, valid_till_);
+
+    // TODO: temporary, to remove
     load(node, name_key_, name_);
   }
   catch (::YAML::Exception& e)
@@ -152,4 +178,24 @@ const QString& CertificateData::name() const noexcept
 void CertificateData::setName(const QString& new_name) noexcept
 {
   d_->name_ = new_name;
+}
+
+QDateTime CertificateData::validFrom() const noexcept
+{
+  return d_->valid_from_;
+}
+
+void CertificateData::setValidFrom(QDateTime date_time) noexcept
+{
+  d_->valid_from_ = date_time;
+}
+
+QDateTime CertificateData::validTill() const noexcept
+{
+  return d_->valid_till_;
+}
+
+void CertificateData::setValidTill(QDateTime date_time) noexcept
+{
+  d_->valid_till_ = date_time;
 }

@@ -3,6 +3,7 @@
 
 #include <QSharedDataPointer>
 #include <QString>
+#include <QDateTime>
 
 namespace YAML {
 class Node;
@@ -24,6 +25,11 @@ public:
 public:
   int version() const noexcept;
   void setVersion(int new_version) noexcept;
+
+  QDateTime validFrom() const noexcept;
+  void setValidFrom(QDateTime date_time) noexcept;
+  QDateTime validTill() const noexcept;
+  void setValidTill(QDateTime date_time) noexcept;
 
   // TODO: temporary, to remove
   const QString& name() const noexcept;

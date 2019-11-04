@@ -33,9 +33,12 @@ public:
 private:
   void setup_dialog_data();
   bool validate_and_save();
+  bool validate_and_save_validity();
 
   void add_childs_to_issuers_combo(QTreeWidgetItem* parent, CertificateItem* const exclude);
   void select_issuer(CertificateItem* issuer);
+  void set_year_interval(int years) noexcept;
+  void focus_widget_and_activate_tab(QWidget* widget);
 
 private:
   SCADocument& doc_;
