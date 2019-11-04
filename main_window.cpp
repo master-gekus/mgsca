@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "utils.h"
 #include "certificate_item.h"
 #include "certificate_edit_dialog.h"
 
@@ -29,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
   settings.beginGroup(MAIN_WINDOW_GROUP);
   restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
   restoreState(settings.value(STATE_KEY).toByteArray());
+  Utils::restoreElementsState(this, settings);
 
   ui->actionNew->setShortcut(QKeySequence::New);
   ui->actionOpen->setShortcut(QKeySequence::Open);
@@ -62,6 +64,7 @@ MainWindow::~MainWindow()
   settings.beginGroup(MAIN_WINDOW_GROUP);
   settings.setValue(GEOMETRY_KEY, saveGeometry());
   settings.setValue(STATE_KEY, saveState());
+  Utils::saveElementsState(this, settings);
 
   delete ui;
 }

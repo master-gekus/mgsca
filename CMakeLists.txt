@@ -40,6 +40,8 @@ add_executable(mgsca
   certificate_edit_dialog.cpp
   certificate_edit_dialog.h
   certificate_edit_dialog.ui
+  utils.cpp
+  utils.h
   )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
