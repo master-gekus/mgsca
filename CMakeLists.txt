@@ -40,6 +40,8 @@ add_executable(mgsca
   certificate_edit_dialog.cpp
   certificate_edit_dialog.h
   certificate_edit_dialog.ui
+  distinguished_name.cpp
+  distinguished_name.h
   utils.cpp
   utils.h
   )
