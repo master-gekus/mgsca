@@ -23,7 +23,7 @@ add_subdirectory(yaml-cpp)
 
 find_package(Qt5 5.8 COMPONENTS Core Gui Widgets REQUIRED)
 
-add_executable(mgsca
+add_executable(mgsca WIN32 MACOSX_BUNDLE
   main.cpp
   main_window.cpp
   main_window.h

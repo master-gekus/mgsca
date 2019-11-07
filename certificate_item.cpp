@@ -28,6 +28,8 @@ private:
   static const constexpr char* certificates_key_ = "Certificates";
 };
 
+const constexpr char* CertificateItem::Private::certificates_key_;
+
 inline CertificateItem::Private::Private(CertificateItem* owner) noexcept :
   owner_{owner}
 {
